@@ -1,0 +1,35 @@
+void main()
+{
+	int num=0;	
+	string var=" ";
+	print("hola");
+	nombre=read();
+	print("Ingrese un numero");
+	num=read();
+	if(num<=18)
+	{
+		print("lo sentimos no pasa la prueba");
+	}
+	else
+	{
+		print("arre si la pasa");
+	}
+	
+	for(int i=0;i<10;i++)
+	{
+		print("Hola Mundo");
+	}
+	
+	do
+	{
+		print("Hola Mundo");
+		num=num+1;
+	}
+	while(num!=100)
+	
+	while(num==10)
+	{
+		print("Hola Mundo");
+	}
+	
+}

@@ -1,0 +1,184 @@
+PARSER_BEGIN(Compilador)
+	import java.io.*;
+	
+	public class Compilador
+	{
+		public static void main(String[] args )throws ParseException
+		{
+			BufferedReader bufread=new BufferedReader(new InputStreamReader(System.in));
+			String filepath;
+			Compilador parser;
+			System.out.print("Direccion del archivo");
+			try
+			{
+				filepath=bufread.readLine();
+			}
+			catch(IOException e)
+			{
+				System.out.println("Direccion Erronea, verifique");
+				return;
+			}
+			try
+			{
+				parser = new Compilador(new FileInputStream(filepath));
+			}
+			catch(FileNotFoundException e)
+			{
+				System.out.println("El archivo no existe");
+				return;
+			}
+			try
+			{
+				parser.mInicioPrograma();
+				System.out.println("Analisis finalizó sin errores");
+				
+			}
+			catch (ParseException e)
+			{
+				System.out.println(e.getMessage());
+				System.out.println("Analisis de finalizó con errores");
+			}
+		}
+	}
+PARSER_END(Compilador)
+
+
+TOKEN:
+{
+	<STRING: "string">
+	|<BOOL: "bool">
+	|<INT: "int">
+	|<DOUBLE: "double">
+	|<LEER: "read">
+	|<IMPRIMIR: "print">
+	|<FOR: "for">
+	|<DO: "do">
+	|<WHILE: "while">
+	|<NUMEROS: (["0"-"9"])+>
+	/*|<DECIMAL: (["0"-"9"])+"."(["0"-"9"])+ > este pues aun tenemos dudas de que ondaa*/
+	|<PALABRAS: "\""(~["\""])+"\"">
+	|<MENOR:"<">
+	|<MAYOR:">">
+	|<MENORIGUAL: "<=">
+	|<MAYORIGUAL: ">=">
+	|<IGUALIGUAL: "=="> 
+	|<DIFERENTE: "!=">
+	|<IGUAL:"=">
+	|<IF: "if">
+	|<ELSE: "else">
+	|<ELSEIF:"elseif">
+	|<AND: "&&">
+	|<OR: "||">
+	|<VERDADERO: "true">
+	|<FALSO: "false">
+	|<PARDERECHO: ")">
+	|<PARIZQUIERDO: "(">
+	|<LLADERECHA: "}">
+	|<LLAIZQUIERDA: "{">
+	|<VOID: "void">
+	|<MAS: "+">
+	|<INCREMENTO:"++">
+	|<MENOS:"-">
+	|<DECREMENTO:"--">
+	|<POR: "*">
+	|<ENTRE: "/">
+	|<POTENCIA: "^">
+	|<COMENTARIOS: "#">
+	|<PUNTOCOMA:";">
+	|<MAIN:"main">
+	|<ID: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9"])*>
+	/*Faltan los de skip*/
+
+}
+	SKIP:{" "}
+	SKIP:{"\r"|"\t"|"\n"}
+void mInicioPrograma():{}
+{
+	<VOID><MAIN><PARIZQUIERDO><PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+}
+void mPrincipal():{}
+{
+	(mCiclos()|mSi()|mDeclararVariable()|mAsignacion()|mImprimir())*
+}
+void mCiclos():{}
+{
+	mHacerMientras()|mMientras()|mPara()
+}
+void mHacerMientras():{}
+{
+	<DO><LLAIZQUIERDA>mPrincipal()<LLADERECHA><WHILE><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*<PARDERECHO>
+}
+/*mCondicion():{}
+{
+	<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())
+}*/
+void mVerdaderoFalso():{}
+{
+	<VERDADERO>|<FALSO>
+}
+void mRelacional():{}
+{
+	<MENORIGUAL>|<MAYORIGUAL>|<IGUALIGUAL>|<DIFERENTE>|<MENOR>|<MAYOR>
+}
+void mAndOr():{}
+{
+	<AND>|<OR>
+}
+void mMientras():{}
+{
+	<WHILE><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+}
+void mPara():{}
+{
+	<FOR><PARIZQUIERDO><INT><ID><IGUAL><NUMEROS><PUNTOCOMA><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())<PUNTOCOMA><ID>(<INCREMENTO>|<DECREMENTO>)<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+}
+void mSi():{}
+{
+	<IF><PARIZQUIERDO>
+	(
+		<ID>mRelacional()
+		(
+			<ID>|<NUMEROS>|mVerdaderoFalso()
+		)
+		(
+			mAndOr()<ID>mRelacional()
+			(
+				<ID>|<NUMEROS>|mVerdaderoFalso()
+			)
+		)*
+	)
+	<PARDERECHO>
+	<LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+	(
+		(<ELSEIF><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*)<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+	)*
+	(<ELSE><LLAIZQUIERDA>mPrincipal()<LLADERECHA>)?
+}
+void mAritmeticas():{}
+{
+	mOperadores()mValores()
+}
+void mValores():{}
+{
+	(<ID>|<NUMEROS>)
+}
+void mOperadores():{}
+{	
+	<MAS>|<MENOS>|<POR>|<ENTRE>
+}
+void mAsignacion():{}
+{
+	<ID><IGUAL>(mValores()mAritmeticas()|mLeer())<PUNTOCOMA>
+}
+void mLeer():{}
+{	
+	<LEER><PARIZQUIERDO><PARDERECHO>
+}
+void mImprimir():{}
+{
+	<IMPRIMIR><PARIZQUIERDO>(<ID>|<PALABRAS>)<PARDERECHO><PUNTOCOMA>
+}
+void mDeclararVariable():{}
+{
+	((<INT><ID><IGUAL>(mValores()(mAritmeticas())?|mLeer()))|(<DOUBLE><ID><IGUAL>(mValores()(mAritmeticas())?|mLeer()))|(<STRING><ID><IGUAL>(<PALABRAS>|mLeer()))|(<BOOL><ID><IGUAL>mVerdaderoFalso()))<PUNTOCOMA>
+}
