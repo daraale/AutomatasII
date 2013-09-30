@@ -1,6 +1,8 @@
 void main()
 {
 	int num=0;	
+	var=0;
+	var=" ";
 	string var=" ";
 	print("hola");
 	nombre=read();
