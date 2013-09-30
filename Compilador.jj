@@ -183,7 +183,7 @@ void mOperadores():{}
 
 void mAsignacion():{}
 {
-	<ID><IGUAL>(mValores()mAritmeticas()|mLeer())<PUNTOCOMA>
+	<ID><IGUAL>(mValores()mAritmeticas()|mLeer()|mVerdaderoFalso())<PUNTOCOMA>
 }
 
 void mLeer():{}
