@@ -38,6 +38,7 @@ Thumbs.db
 
 # archivos de compilacion javacc #
 Compilador.java
+CompiladorConstants.java
 CompiladorTokenManager.java
 ParseException.java
 SimpleCharStream.java
