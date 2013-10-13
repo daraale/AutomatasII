@@ -122,143 +122,287 @@ SKIP :
 	" "|"\n" | "\r" | "\r\n" | "\t"
 }
 
-void mInicioPrograma():
+void MetodoInicioPrograma():
+{}
 {
-	TablaDeSimbolos.InicializaListaCompatibilidad();
-}
-{
-	<VOID><MAIN><PARIZQUIERDO><PARDERECHO><LLAIZQUIERDA>
-		mPrincipal()
-	<LLADERECHA><EOF>
+	<PROGRAMA><IDENTIFIER><LBRACE>MetodoBloque()<RBRACE><EOF>
 }
 
-void mPrincipal():{}
+void MetodoBloque():
+{}
 {
-	(mCiclos()|mSi()|mDeclararVariable()|mAsignacion()|mImprimir())*
+	LOOKAHEAD(2)MetodoVariablesGlobales() | MetodoPrincipal()
 }
 
-void mCiclos():{}
+void MetodoVariablesGlobales():
+{}
 {
-	mHacerMientras()|mMientras()|mPara()
+	(<PRIVATE>|<PUBLIC>)(<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> MetodoBloque()
 }
 
-void mHacerMientras():{}
+void Principal():
 {
-	<DO><LLAIZQUIERDA>mPrincipal()<LLADERECHA><WHILE><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*<PARDERECHO>
+	TablaDeSimbolos.InicializaListaCompatibilidad();	
+}
+{
+	<MAIN>
+	<LBRACE>MetodoSentencias()<RBRACE> 	
 }
 
-void mVerdaderoFalso():{}
+void MetodoVariablesLocales():
 {
-	<VERDADERO>|<FALSO>
+	int tipoDeDato;
+	Token tok;
 }
-
-void mRelacional():{}
 {
-	<MENORIGUAL>|<MAYORIGUAL>|<IGUALIGUAL>|<DIFERENTE>|<MENOR>|<MAYOR>
-}
-
-void mAndOr():{}
-{
-	<AND>|<OR>
-}
-
-void mMientras():{}
-{
-	<WHILE><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
-}
-
-void mPara():{}
-{
-	<FOR><PARIZQUIERDO><INT><ID><IGUAL><NUMEROS><PUNTOCOMA><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())<PUNTOCOMA><ID>(<INCREMENTO>|<DECREMENTO>)<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
-}
-
-void mSi():{}
-{
-	<IF><PARIZQUIERDO>
 	(
-		<ID>mRelacional()
+		(MetodoTiposDatos())
+		{
+			tok = token.kind;
+		}
+		tok = <IDENTIFIER>
+		{
+			TablaDeSimbolos.InsertarSimbolo(tok, tipoDeDato);
+		}
+		[MetodoVariablesAsignacion(tok)]
 		(
-			<ID>|<NUMEROS>|mVerdaderoFalso()
-		)
-		(
-			mAndOr()<ID>mRelacional()
-			(
-				<ID>|<NUMEROS>|mVerdaderoFalso()
-			)
+			<COMMA>
+			tok = <IDENTIFIER>
+			{
+				TablaDeSimbolos.InsertarSimbolo(tok, tipoDeDato);
+			}
+			[MetodoVariablesAsignacion(tok)]
 		)*
+		<SEMICOLON>
 	)
-	<PARDERECHO>
-	<LLAIZQUIERDA>mPrincipal()<LLADERECHA>
-	(
-		(<ELSEIF><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*)<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+	(MetodoVariablesSentencias())
+}
+
+void MetodoVariablesAsignacion(Token tok1):
+{
+	Token tok2;
+	Token tok3;
+	String resultado;
+	boolean imp = false;
+}
+{
+	<ASIGNACION>
+	(MetodoTiposAsignacion())
+	{
+		tok2 = token;
+		resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
+
+		if(res != " ") {
+			System.out.println(resultado);
+			imp = true;
+		}
+	}
+	(MetodoOperacionAritmetica()
+		MetodoTiposAsignacion()
+		{
+			tok3 = token;
+			resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok3);
+
+			if(resultado != " " && !imp) {
+				System.out.println(resultado);
+			}
+		}
 	)*
-	(<ELSE><LLAIZQUIERDA>mPrincipal()<LLADERECHA>)?
 }
 
-void mAritmeticas():{}
+void MetodoVariablesSentencias():
+{}
 {
-	mOperadores()mValores()
+	LOOKAHEAD(3)MetodoVariablesLocales() | MetodoSentencias()
 }
 
-void mValores():{}
+void MetodoSentencias():
+{}
 {
-	(<ID>|<NUMEROS>)
+	(
+		  MetodoVariablesLocales()
+		| MetodoSentenciaIf()
+		| MetodoSentenciaFor()
+		| MetodoSentenciaDo()
+		| MetodoSentenciaWhile()
+		| LOOKAHEAD(2)MetodoSentenciaAsignacion(<SEMICOLON>{ TablaDeSimbolos.segunda = 0;})
+		| MetodoSentenciaWrite()
+		| MetodoSentenciaRead()<SEMICOLON>
+		| MetodoSentenciaSwitch()
+	)*
 }
 
-void mOperadores():{}
-{	
-	<MAS>|<MENOS>|<POR>|<ENTRE>
-}
-
-void mAsignacion():{}
+void MetodoSentenciaIf():
+{}
 {
-	<ID><IGUAL>(mValores()(mAritmeticas())?|mLeer()|mVerdaderoFalso()|<PALABRAS>)<PUNTOCOMA>
+	<IF><LPAREN> MetodoCondicion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE> (void MetodoElse())*
 }
 
-void mLeer():{}
-{	
-	<LEER><PARIZQUIERDO><PARDERECHO>
-}
-
-void mImprimir():{}
+void MetodoElse():
+{}
 {
-	<IMPRIMIR><PARIZQUIERDO>(<ID>|<PALABRAS>)<PARDERECHO><PUNTOCOMA>
+	<ELSE><LBRACE> MetodoSentencias() <RBRACE> | <ELSEIF><LPAREN> MetodoCondicion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
 }
 
-void mDeclararVariable():
+void MetodoCondicion():
+{}
+{
+	MetodoComparaciones() ([(<AND> | <OR>)] MetodoComparaciones())*
+}
+
+void MetodoComparaciones():
+{}
+{
+	MetodoValor() MetodoOperadores() MetodoValor()
+}
+
+void MetodoValor():
+{}
+{
+	LOOKAHEAD(2)(<IDENTIFIER> | <NUMBER>) | MetodoExpresion()
+}
+
+void MetodoExpresion():
+{}
+{
+	LOOKAHEAD(2)(<NUMBER> | <IDENTIFIER>) | (<IDENTIFIER> | <NUMBER>) MetodoOperacionAritmetica() (<IDENTIFIER> | <NUMBER>)
+}
+
+void MetodoOperadores():
+{}
+{
+	    <EQ> 
+	  | <LE> 
+	  | <GE> 
+	  | <NE> 
+	  | <GR> 
+	  | <MN> 
+}
+
+int MetodoOperacionAritmetica():
+{}
+{
+	  ( <PLUS>  { return 1; } )
+	| ( <MINUS> { return 1; } )
+	| ( <MULTIPLY> { return 1; } )
+	| ( <DIVIDE> { return 1; } )
+	| ( { return 0; } )
+	
+	{ return 0; }
+}
+
+void MetodoTiposDatos():
+{}
+{
+	  <INT>
+	| <DEC>
+	| <STR>
+	| <CHR>
+}
+
+void MetodoSentenciaFor():
+{}
+{
+	<FOR><LPAREN> (MetodoDeclaraVariableFor() | MetodoSentenciaAsignacion()) <SEMICOLON> MetodoComparaciones() <SEMICOLON> MetodoSentenciaAsignacion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
+}
+
+void MetodoDeclaraVariableFor():
 {
 	int tipoDato;
-	Token t;
+	Token tok;
 }
 {
+	(MetodoTiposDatos())
+	{
+		tipoDato = token.kind;
+	}
+	tok = <IDENTIFIER>
+	{
+		TablaDeSimbolos.InsertarSimbolo(tok, tipoDato);
+	}
+	[MetodoVariablesAsignacion(tok)]
+}
+
+void MetodoSentenciaDo():
+{}
+{
+	<DO><LBRACE> MetodoSentencias() <RBRACE><WHILE><LPAREN> MetodoComparaciones() <RPAREN><SEMICOLON>
+}
+
+void MetodoSentenciaWhile():
+{
+	<WHILE><LPAREN> MetodoComparaciones() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
+}
+
+void MetodoSentenciaAsignacion():
+{
+	Token tok1;
+	Token tok2;
+	Token tok3;
+	int aux;
+	String resultado;
+	boolean imp = false;
+}
+{
+	tok1 = <IDENTIFIER>
 	(
-			(
-					<INT> 
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>(mValores()(mAritmeticas())?|mLeer())
-			)
-		|	(
-					<DOUBLE>
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>(mValores()(mAritmeticas())?|mLeer())
-			)
-		|	(
-					<STRING>
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>(<PALABRAS>|mLeer())
-			)
-		|	(
-					<BOOL>
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>mVerdaderoFalso()
-			)
-	)<PUNTOCOMA>
+		<ASIGNACION> (MetodoTiposAsignacion())
+		{
+			tok2 = token;
+			resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
+
+			if(res != " ") {
+				System.out.println(resultado);
+				imp = true;
+			}
+		}
+		(
+			LOOKAHEAD(2) MetodoOperacionAritmetica()MetodoTiposAsignacion()
+			{
+				tok3 = token;
+				resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok3);
+
+				if(res != " " && !imp) {
+					System.out.println(resultado);
+				}
+			}
+		)*
+		|
+		(<INCR> | <DECR>)
+		{
+			resultado = TablaDeSimbolos.RevisaAsignacion(tok1);
+
+			if(res != " ") {
+				System.out.println(resultado);
+			}
+		}
+	)
+}
+
+void MetodoTiposAsignacion():
+{}
+{
+	  <IDENTIFIER> 
+	| <NUMBER> 
+	| <DECIMAL> 
+	| <CADENA> 
+	| <CARAC>	
+}
+
+void MetodoSentenciaWrite():
+{}
+{
+	<WRITE><LPAREN> (MetodoExpresion() (<PLUS><CADENA>)* | <CADENA>(<PLUS> MetodoExpresion())*)* <RPAREN><SEMICOLON>
+}
+
+void MetodoSentenciaRead():
+{}
+{
+	<READ><LPAREN><RPAREN>
+}
+
+void MetodoSentenciaSwitch():
+{}
+{
+	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER> | <CADENA> | <CARAC> | <NUMBER> | <DECIMAL>)<DOUBLEPOINT> (MetodoSentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+ [<DEFAUL><DOUBLEPOINT> (MetodoSentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>] <RBRACE>
 }
