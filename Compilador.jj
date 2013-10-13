@@ -44,54 +44,83 @@ PARSER_BEGIN(Compilador)
 	}
 PARSER_END(Compilador)
 
+TOKEN : 
+{ 
+	  <ASIGNACION: "=">  
+	| <PLUS: "+" >  
+	| <MINUS:"-"> 
+	| <MULTIPLY:"*"> 
+	| <DIVIDE:"/"> 
+	| <INCR: "++" > 
+	| <DECR: "--" > //7	
+}
 
 TOKEN:
 {
-	<STRING: "string">			//1
-	|<BOOL: "bool">				//2
-	|<INT: "int">				//3
-	|<DOUBLE: "double">			//4
-	|<LEER: "read">				
-	|<IMPRIMIR: "print">
-	|<FOR: "for">
-	|<DO: "do">
-	|<WHILE: "while">
-	|<NUMEROS: (["0"-"9"])+>	//10
-	|<DECIMAL: (["0"-"9"])+["."](["0"-"9"])+ >	//11 este pues aun tenemos dudas de que ondaa*/
-	|<PALABRAS: "\""(~["\""])+"\"">				//12
-	|<MENOR:"<">
-	|<MAYOR:">">
-	|<MENORIGUAL: "<=">
-	|<MAYORIGUAL: ">=">
-	|<IGUALIGUAL: "=="> 
-	|<DIFERENTE: "!=">
-	|<IGUAL:"=">
-	|<IF: "if">
-	|<ELSE: "else">
-	|<ELSEIF:"elseif">
-	|<AND: "&&">
-	|<OR: "||">
-	|<VERDADERO: "true">		//25
-	|<FALSO: "false">			//26
-	|<PARDERECHO: ")">
-	|<PARIZQUIERDO: "(">
-	|<LLADERECHA: "}">
-	|<LLAIZQUIERDA: "{">
-	|<VOID: "void">				//31
-	|<MAS: "+">
-	|<INCREMENTO:"++">
-	|<MENOS:"-">
-	|<DECREMENTO:"--">
-	|<POR: "*">
-	|<ENTRE: "/">
-	|<POTENCIA: "^">
-	|<COMENTARIOS: "#">
-	|<PUNTOCOMA:";">
-	|<MAIN:"main">				//41
-	|<ID: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9"])*>	//42
+	  <PUBLIC: "public"> 
+	| <PRIVATE: "private"> 
+	| <STATIC: "static"> 
+	| <VOID: "void"> 
+	| <MAIN: "public static void Main()"> 
+	| <PROGRAMA: "Programa" >  
+	| <IF: "if" > 
+	| <ELSE:"else" > 
+	| <ELSEIF:"else if" > 
+	| <FOR:"for" > 
+	| <SWITCH:"switch" > 
+	| <CASE:"case" > 
+	| <BREAK:"break" > 
+	| <DEFAUL:"ipredef" > 
+	| <DO:"do" > 
+	| <WHILE:"while" > 
+	| <WRITE:"write" > 
+	| <READ:"read" > //25
 }
-SKIP:{" "}
-SKIP:{"\r"|"\t"|"\n"}
+
+TOKEN:
+{
+      <LPAREN: "(" > 
+	| <RPAREN: ")" > 
+	| <LBRACE: "{" > 
+	| <RBRACE: "}" > 
+	| <LBRACKET: "[" > 
+	| <RBRACKET: "]" > 
+	| <SEMICOLON: ";" > 
+	| <COMMA: "," > 
+	| <DOT: "." > 
+	| <DOUBLECOMMA: "\""> //35
+}
+
+TOKEN:
+{
+	  <EQ: "==" > 
+	| <LE: "<=" > 
+	| <MN: "<" > 
+	| <GE: ">=" > 
+	| <GR: ">" > 
+	| <NE: "!=" > 
+	| <OR: "||" > 
+	| <AND: "&&"> /43
+}
+
+TOKEN:
+{
+	  <INT:"int"> //44
+	| <DEC: "double"> //45
+	| <CHR: "char"> //46
+	| <STR: "string"> //47
+	| <NUMBER : (["0"-"9"])+>  //48
+	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //49
+	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //50
+	| <CADENA : <DOUBLECOMMA>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLECOMMA>> //51
+	| <CARAC : "'"["a"-"z","A"-"Z","0"-"9"]"'" >//52 
+	| <DOUBLEPOINT : ":">
+}
+
+SKIP : 
+{ 
+	" "|"\n" | "\r" | "\r\n" | "\t"
+}
 
 void mInicioPrograma():
 {
