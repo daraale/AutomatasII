@@ -10,35 +10,31 @@ PARSER_BEGIN(Compilador)
 			String filepath;
 			Compilador parser;
 			
-			System.out.print("Direccion del archivo");
-			try
-			{
+			System.out.println("Direccion del archivo");
+
+			try	{
 				filepath = reader.readLine();
 			}
-			catch(IOException e)
-			{
+			catch (IOException e) {
 				System.out.println("Direccion Erronea, verifique");
 				return;
 			}
-			try
-			{
+
+			try {
 				parser = new Compilador(new FileInputStream(filepath));
 			}
-			catch(FileNotFoundException e)
-			{
+			catch (FileNotFoundException e) {
 				System.out.println("El archivo no existe");
 				return;
 			}
-			try
-			{
+
+			try {
 				parser.MetodoInicioPrograma();				
-				System.out.println("Analisis finalizó sin errores");
-				
+				System.out.println("Analisis finalizado");				
 			}
-			catch (ParseException e)
-			{
+			catch (ParseException e) {
 				System.out.println(e.getMessage());
-				System.out.println("Analisis de finalizó con errores");
+				System.out.println("Analisis finalizado");
 			}
 		}
 	}
@@ -70,10 +66,10 @@ TOKEN:
 	| <SWITCH: 	"switch" > 
 	| <CASE: 	"case" > 
 	| <BREAK: 	"break" > 
-	| <DEFAULT: "default" > 
+	| <DEFAULTT: "default" > 
 	| <DO: 		"do" > 
 	| <WHILE: 	"while" > 
-	| <WRITE: 	"write" > 
+	| <PRINT: 	"print" > 
 	| <READ: 	"read" > //25
 }
 
@@ -109,15 +105,15 @@ TOKEN:
 	| <DOUBLE: 	"double" > //45
 	| <CHR: 	"char" > //46
 	| <STR: 	"string" > //47
-	| <NUMBER:	(["0"-"9"])+ >  //48
-	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])* >  //49
-	| <DECIMAL: (["0"-"9"])+["."](["0"-"9"])+ > //50
-	| <STRING: 	<DOUBLEQUOTE>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLEQUOTE> > //51
-	| <CHAR: 	"'"["a"-"z","A"-"Z","0"-"9"]"'" >//52 
+	| <BOOL: 	"bool" >//48
+	| <TRUE: 	"true" >//49
+	| <FALSE: 	"false" >//50
+	| <NUMBER:	(["0"-"9"])+ >  //51
+	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])* >  //52
+	| <DECIMAL: (["0"-"9"])+["."](["0"-"9"])+ > //53
+	| <STRING: 	<DOUBLEQUOTE>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLEQUOTE> > //54
+	| <CHAR: 	"'"["a"-"z","A"-"Z","0"-"9"]"'" >//55
 	| <COLON: 	":" >
-	| <BOOL: 	"bool" >//54
-	| <TRUE: 	"true" >//55
-	| <FALSE: 	"false" >//56
 }
 
 SKIP : 
@@ -143,7 +139,7 @@ void MetodoVariablesGlobales():
 	(<PRIVATE>|<PUBLIC>)(<INT>|<DOUBLE>|<STR>|<CHR>|<BOOL>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> MetodoBloque()
 }
 
-void Principal():
+void MetodoPrincipal():
 {
 	TablaDeSimbolos.InicializaListaCompatibilidad();	
 }
@@ -160,7 +156,7 @@ void MetodoVariablesLocales():
 	(
 		(MetodoTiposDatos())
 		{
-			tok = token.kind;
+			tipoDeDato = token.kind;
 		}
 		tok = <IDENTIFIER>
 		{
@@ -194,7 +190,7 @@ void MetodoVariablesAsignacion(Token tok1):
 		tok2 = token;
 		resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
 
-		if(res != " ") {
+		if(resultado != " ") {
 			System.out.println(resultado);
 			imp = true;
 		}
@@ -227,7 +223,7 @@ void MetodoSentencias():
 		| MetodoSentenciaFor()
 		| MetodoSentenciaDo()
 		| MetodoSentenciaWhile()
-		| LOOKAHEAD(2)MetodoSentenciaAsignacion(<SEMICOLON>{ TablaDeSimbolos.validaChar = 0;})
+		| LOOKAHEAD(2)MetodoSentenciaAsignacion()(<SEMICOLON>{ TablaDeSimbolos.validaChar = 0; })
 		| MetodoSentenciaWrite()
 		| MetodoSentenciaRead()<SEMICOLON>
 		| MetodoSentenciaSwitch()
@@ -237,7 +233,7 @@ void MetodoSentencias():
 void MetodoSentenciaIf():
 {}
 {
-	<IF><LPAREN> MetodoCondicion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE> (void MetodoElse())*
+	<IF><LPAREN> MetodoCondicion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE> (MetodoElse())*
 }
 
 void MetodoElse():
@@ -276,7 +272,7 @@ void MetodoOperadores():
 	    <EQUAL> 
 	  | <LESSEQUAL> 
 	  | <GREATEREQUAL> 
-	  | <NOTEEQUAL> 
+	  | <NOTEQUAL> 
 	  | <GREATER> 
 	  | <LESS> 
 }
@@ -333,6 +329,7 @@ void MetodoSentenciaDo():
 }
 
 void MetodoSentenciaWhile():
+{}
 {
 	<WHILE><LPAREN> MetodoComparaciones() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
 }
@@ -354,7 +351,7 @@ void MetodoSentenciaAsignacion():
 			tok2 = token;
 			resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
 
-			if(res != " ") {
+			if(resultado != " ") {
 				System.out.println(resultado);
 				imp = true;
 			}
@@ -365,7 +362,7 @@ void MetodoSentenciaAsignacion():
 				tok3 = token;
 				resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok3);
 
-				if(res != " " && !imp) {
+				if(resultado != " " && !imp) {
 					System.out.println(resultado);
 				}
 			}
@@ -373,9 +370,9 @@ void MetodoSentenciaAsignacion():
 		|
 		(<INCR> | <DECR>)
 		{
-			resultado = TablaDeSimbolos.RevisaAsignacion(tok1);
+			resultado = TablaDeSimbolos.RevisaVariable(tok1);
 
-			if(res != " ") {
+			if(resultado != " ") {
 				System.out.println(resultado);
 			}
 		}
@@ -397,7 +394,7 @@ void MetodoTiposAsignacion():
 void MetodoSentenciaWrite():
 {}
 {
-	<WRITE><LPAREN> (MetodoExpresion() (<PLUS><STRING>)* | <STRING>(<PLUS> MetodoExpresion())*)* <RPAREN><SEMICOLON>
+	<PRINT><LPAREN> (MetodoExpresion() (<PLUS><STRING>)* | <STRING>(<PLUS> MetodoExpresion())*)* <RPAREN><SEMICOLON>
 }
 
 void MetodoSentenciaRead():
@@ -409,5 +406,5 @@ void MetodoSentenciaRead():
 void MetodoSentenciaSwitch():
 {}
 {
-	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER> | <STRING> | <CHAR> | <NUMBER> | <DECIMAL>)<COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+ [<DEFAULT><COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>] <RBRACE>
+	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER> | <STRING> | <CHAR> | <NUMBER> | <DECIMAL>)<COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+ [<DEFAULTT><COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>] <RBRACE>
 }
