@@ -1,37 +1,38 @@
-void main()
+Program ejemplo
 {
-	int num=0;	
-	var=0;
-	var=" ";
-	string var=" ";
-	print("hola");
-	nombre=read();
-	print("Ingrese un numero");
-	num=read();
-	if(num<=18)
+	public static void Main()
 	{
-		print("lo sentimos no pasa la prueba");
+		int num = 0;	
+		int var = 0;
+		string var = " ";
+		print("hola");
+		read();
+		print("Ingrese un numero");
+		read();
+		if(num<=18)
+		{
+			print("lo sentimos no pasa la prueba");
+		}
+		else
+		{
+			print("arre si la pasa");
+		}
+		
+		for(int i=0;i<10;i++)
+		{
+			print("Hola Mundo");
+		}
+		
+		do
+		{
+			print("Hola Mundo");
+			num=num+1;
+		}while(num!=100);
+		
+		while(num==10)
+		{
+			print("Hola Mundo");
+		}
+		
 	}
-	else
-	{
-		print("arre si la pasa");
-	}
-	
-	for(int i=0;i<10;i++)
-	{
-		print("Hola Mundo");
-	}
-	
-	do
-	{
-		print("Hola Mundo");
-		num=num+1;
-	}
-	while(num!=100)
-	
-	while(num==10)
-	{
-		print("Hola Mundo");
-	}
-	
 }

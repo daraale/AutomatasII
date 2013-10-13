@@ -10,226 +10,401 @@ PARSER_BEGIN(Compilador)
 			String filepath;
 			Compilador parser;
 			
-			System.out.print("Direccion del archivo");
-			try
-			{
+			System.out.println("Direccion del archivo");
+
+			try	{
 				filepath = reader.readLine();
 			}
-			catch(IOException e)
-			{
+			catch (IOException e) {
 				System.out.println("Direccion Erronea, verifique");
 				return;
 			}
-			try
-			{
+
+			try {
 				parser = new Compilador(new FileInputStream(filepath));
 			}
-			catch(FileNotFoundException e)
-			{
+			catch (FileNotFoundException e) {
 				System.out.println("El archivo no existe");
 				return;
 			}
-			try
-			{
-				parser.mInicioPrograma();				
-				System.out.println("Analisis finalizó sin errores");
-				
+
+			try {
+				parser.MetodoInicioPrograma();				
+				System.out.println("Analisis finalizado");				
 			}
-			catch (ParseException e)
-			{
+			catch (ParseException e) {
 				System.out.println(e.getMessage());
-				System.out.println("Analisis de finalizó con errores");
+				System.out.println("Analisis finalizado");
 			}
 		}
 	}
 PARSER_END(Compilador)
 
+TOKEN : 
+{ 
+	  <ASSIGN: 	"=" >  
+	| <PLUS: 	"+" >  
+	| <MINUS: 	"-" > 
+	| <MULTIPLY: "*"> 
+	| <DIVIDE: 	"/" > 
+	| <INCR: 	"++"> 
+	| <DECR: 	"--"> //7	
+}
 
 TOKEN:
 {
-	<STRING: "string">			//1
-	|<BOOL: "bool">				//2
-	|<INT: "int">				//3
-	|<DOUBLE: "double">			//4
-	|<LEER: "read">				
-	|<IMPRIMIR: "print">
-	|<FOR: "for">
-	|<DO: "do">
-	|<WHILE: "while">
-	|<NUMEROS: (["0"-"9"])+>	//10
-	|<DECIMAL: (["0"-"9"])+["."](["0"-"9"])+ >	//11 este pues aun tenemos dudas de que ondaa*/
-	|<PALABRAS: "\""(~["\""])+"\"">				//12
-	|<MENOR:"<">
-	|<MAYOR:">">
-	|<MENORIGUAL: "<=">
-	|<MAYORIGUAL: ">=">
-	|<IGUALIGUAL: "=="> 
-	|<DIFERENTE: "!=">
-	|<IGUAL:"=">
-	|<IF: "if">
-	|<ELSE: "else">
-	|<ELSEIF:"elseif">
-	|<AND: "&&">
-	|<OR: "||">
-	|<VERDADERO: "true">		//25
-	|<FALSO: "false">			//26
-	|<PARDERECHO: ")">
-	|<PARIZQUIERDO: "(">
-	|<LLADERECHA: "}">
-	|<LLAIZQUIERDA: "{">
-	|<VOID: "void">				//31
-	|<MAS: "+">
-	|<INCREMENTO:"++">
-	|<MENOS:"-">
-	|<DECREMENTO:"--">
-	|<POR: "*">
-	|<ENTRE: "/">
-	|<POTENCIA: "^">
-	|<COMENTARIOS: "#">
-	|<PUNTOCOMA:";">
-	|<MAIN:"main">				//41
-	|<ID: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9"])*>	//42
-}
-SKIP:{" "}
-SKIP:{"\r"|"\t"|"\n"}
-
-void mInicioPrograma():
-{
-	TablaDeSimbolos.InicializaListaCompatibilidad();
-}
-{
-	<VOID><MAIN><PARIZQUIERDO><PARDERECHO><LLAIZQUIERDA>
-		mPrincipal()
-	<LLADERECHA><EOF>
+	  <PUBLIC: 	"public" > 
+	| <PRIVATE: "private" > 
+	| <STATIC: 	"static" > 
+	| <VOID: 	"void" > 
+	| <MAIN: 	"public static void Main()" > 
+	| <PROGRAM: "Program" >  
+	| <IF: 		"if" > 
+	| <ELSE: 	"else" > 
+	| <ELSEIF: 	"else if" > 
+	| <FOR: 	"for" > 
+	| <SWITCH: 	"switch" > 
+	| <CASE: 	"case" > 
+	| <BREAK: 	"break" > 
+	| <DEFAULTT: "default" > 
+	| <DO: 		"do" > 
+	| <WHILE: 	"while" > 
+	| <PRINT: 	"print" > 
+	| <READ: 	"read" > //25
 }
 
-void mPrincipal():{}
+TOKEN:
 {
-	(mCiclos()|mSi()|mDeclararVariable()|mAsignacion()|mImprimir())*
+      <LPAREN: 	"(" > 
+	| <RPAREN: 	")" > 
+	| <LBRACE: 	"{" > 
+	| <RBRACE: 	"}" > 
+	| <LBRACKET: "[" > 
+	| <RBRACKET: "]" > 
+	| <SEMICOLON: ";" > 
+	| <COMMA: 	"," > 
+	| <DOT: 	"." > 
+	| <DOUBLEQUOTE: "\"" > //35
 }
 
-void mCiclos():{}
+TOKEN:
 {
-	mHacerMientras()|mMientras()|mPara()
+	  <EQUAL: 	"==" > 
+	| <LESSEQUAL: "<=" > 
+	| <LESS: 	"<" > 
+	| <GREATEREQUAL: ">=" > 
+	| <GREATER: ">" > 
+	| <NOTEQUAL: "!=" > 
+	| <OR: 		"||" > 
+	| <AND: 	"&&" > //43
 }
 
-void mHacerMientras():{}
+TOKEN:
 {
-	<DO><LLAIZQUIERDA>mPrincipal()<LLADERECHA><WHILE><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*<PARDERECHO>
+	  <INT:		"int" > //44
+	| <DOUBLE: 	"double" > //45
+	| <CHR: 	"char" > //46
+	| <STR: 	"string" > //47
+	| <BOOL: 	"bool" >//48
+	| <TRUE: 	"true" >//49
+	| <FALSE: 	"false" >//50
+	| <NUMBER:	(["0"-"9"])+ >  //51
+	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])* >  //52
+	| <DECIMAL: (["0"-"9"])+["."](["0"-"9"])+ > //53
+	| <STRING: 	<DOUBLEQUOTE>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLEQUOTE> > //54
+	| <CHAR: 	"'"["a"-"z","A"-"Z","0"-"9"]"'" >//55
+	| <COLON: 	":" >
 }
 
-void mVerdaderoFalso():{}
-{
-	<VERDADERO>|<FALSO>
+SKIP : 
+{ 
+	" "|"\n" | "\r" | "\r\n" | "\t"
 }
 
-void mRelacional():{}
+void MetodoInicioPrograma():
+{}
 {
-	<MENORIGUAL>|<MAYORIGUAL>|<IGUALIGUAL>|<DIFERENTE>|<MENOR>|<MAYOR>
+	<PROGRAM><IDENTIFIER><LBRACE> MetodoBloque() <RBRACE><EOF>
 }
 
-void mAndOr():{}
+void MetodoBloque():
+{}
 {
-	<AND>|<OR>
+	LOOKAHEAD(2)MetodoVariablesGlobales() | MetodoPrincipal()
 }
 
-void mMientras():{}
+void MetodoVariablesGlobales():
+{}
 {
-	<WHILE><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+	(<PRIVATE>|<PUBLIC>)(<INT>|<DOUBLE>|<STR>|<CHR>|<BOOL>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> MetodoBloque()
 }
 
-void mPara():{}
+void MetodoPrincipal():
 {
-	<FOR><PARIZQUIERDO><INT><ID><IGUAL><NUMEROS><PUNTOCOMA><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())<PUNTOCOMA><ID>(<INCREMENTO>|<DECREMENTO>)<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+	TablaDeSimbolos.InicializaListaCompatibilidad();	
+}
+{
+	<MAIN><LBRACE> MetodoSentencias() <RBRACE> 	
 }
 
-void mSi():{}
+void MetodoVariablesLocales():
 {
-	<IF><PARIZQUIERDO>
+	int tipoDeDato;
+	Token tok;
+}
+{
 	(
-		<ID>mRelacional()
+		(MetodoTiposDatos())
+		{
+			tipoDeDato = token.kind;
+		}
+		tok = <IDENTIFIER>
+		{
+			TablaDeSimbolos.InsertarSimbolo(tok, tipoDeDato);
+		}
+		[MetodoVariablesAsignacion(tok)]
 		(
-			<ID>|<NUMEROS>|mVerdaderoFalso()
-		)
-		(
-			mAndOr()<ID>mRelacional()
-			(
-				<ID>|<NUMEROS>|mVerdaderoFalso()
-			)
+			<COMMA>
+			tok = <IDENTIFIER>
+			{
+				TablaDeSimbolos.InsertarSimbolo(tok, tipoDeDato);
+			}
+			[MetodoVariablesAsignacion(tok)]
 		)*
+		<SEMICOLON>
 	)
-	<PARDERECHO>
-	<LLAIZQUIERDA>mPrincipal()<LLADERECHA>
-	(
-		(<ELSEIF><PARIZQUIERDO><ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso())(mAndOr()<ID>mRelacional()(<ID>|<NUMEROS>|mVerdaderoFalso()))*)<PARDERECHO><LLAIZQUIERDA>mPrincipal()<LLADERECHA>
+	(MetodoVariablesSentencias())
+}
+
+void MetodoVariablesAsignacion(Token tok1):
+{
+	Token tok2;
+	Token tok3;
+	String resultado;
+	boolean imp = false;
+}
+{
+	<ASSIGN>
+	(MetodoTiposAsignacion())
+	{
+		tok2 = token;
+		resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
+
+		if(resultado != " ") {
+			System.out.println(resultado);
+			imp = true;
+		}
+	}
+	(MetodoOperacionAritmetica()
+		MetodoTiposAsignacion()
+		{
+			tok3 = token;
+			resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok3);
+
+			if(resultado != " " && !imp) {
+				System.out.println(resultado);
+			}
+		}
 	)*
-	(<ELSE><LLAIZQUIERDA>mPrincipal()<LLADERECHA>)?
 }
 
-void mAritmeticas():{}
+void MetodoVariablesSentencias():
+{}
 {
-	mOperadores()mValores()
+	LOOKAHEAD(3)MetodoVariablesLocales() | MetodoSentencias()
 }
 
-void mValores():{}
+void MetodoSentencias():
+{}
 {
-	(<ID>|<NUMEROS>)
+	(
+		  MetodoVariablesLocales()
+		| MetodoSentenciaIf()
+		| MetodoSentenciaFor()
+		| MetodoSentenciaDo()
+		| MetodoSentenciaWhile()
+		| LOOKAHEAD(2)MetodoSentenciaAsignacion()(<SEMICOLON>{ TablaDeSimbolos.validaChar = 0; })
+		| MetodoSentenciaWrite()
+		| MetodoSentenciaRead()<SEMICOLON>
+		| MetodoSentenciaSwitch()
+	)*
 }
 
-void mOperadores():{}
-{	
-	<MAS>|<MENOS>|<POR>|<ENTRE>
-}
-
-void mAsignacion():{}
+void MetodoSentenciaIf():
+{}
 {
-	<ID><IGUAL>(mValores()(mAritmeticas())?|mLeer()|mVerdaderoFalso()|<PALABRAS>)<PUNTOCOMA>
+	<IF><LPAREN> MetodoCondicion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE> (MetodoElse())*
 }
 
-void mLeer():{}
-{	
-	<LEER><PARIZQUIERDO><PARDERECHO>
-}
-
-void mImprimir():{}
+void MetodoElse():
+{}
 {
-	<IMPRIMIR><PARIZQUIERDO>(<ID>|<PALABRAS>)<PARDERECHO><PUNTOCOMA>
+	<ELSE><LBRACE> MetodoSentencias() <RBRACE> | <ELSEIF><LPAREN> MetodoCondicion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
 }
 
-void mDeclararVariable():
+void MetodoCondicion():
+{}
+{
+	MetodoComparaciones() ([(<AND> | <OR>)] MetodoComparaciones())*
+}
+
+void MetodoComparaciones():
+{}
+{
+	MetodoValor() MetodoOperadores() MetodoValor()
+}
+
+void MetodoValor():
+{}
+{
+	LOOKAHEAD(2)(<IDENTIFIER> | <NUMBER>) | MetodoExpresion()
+}
+
+void MetodoExpresion():
+{}
+{
+	LOOKAHEAD(2)(<NUMBER> | <IDENTIFIER>) | (<IDENTIFIER> | <NUMBER>) MetodoOperacionAritmetica() (<IDENTIFIER> | <NUMBER>)
+}
+
+void MetodoOperadores():
+{}
+{
+	    <EQUAL> 
+	  | <LESSEQUAL> 
+	  | <GREATEREQUAL> 
+	  | <NOTEQUAL> 
+	  | <GREATER> 
+	  | <LESS> 
+}
+
+int MetodoOperacionAritmetica():
+{}
+{
+	  ( <PLUS>  { return 1; } )
+	| ( <MINUS> { return 1; } )
+	| ( <MULTIPLY> { return 1; } )
+	| ( <DIVIDE> { return 1; } )
+	| ( { return 0; } )
+	
+	{ return 0; }
+}
+
+void MetodoTiposDatos():
+{}
+{
+	  <INT>
+	| <DOUBLE>
+	| <STR>
+	| <CHR>
+	| <BOOL>
+}
+
+void MetodoSentenciaFor():
+{}
+{
+	<FOR><LPAREN> (MetodoDeclaraVariableFor() | MetodoSentenciaAsignacion()) <SEMICOLON> MetodoComparaciones() <SEMICOLON> MetodoSentenciaAsignacion() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
+}
+
+void MetodoDeclaraVariableFor():
 {
 	int tipoDato;
-	Token t;
+	Token tok;
 }
 {
+	(MetodoTiposDatos())
+	{
+		tipoDato = token.kind;
+	}
+	tok = <IDENTIFIER>
+	{
+		TablaDeSimbolos.InsertarSimbolo(tok, tipoDato);
+	}
+	[MetodoVariablesAsignacion(tok)]
+}
+
+void MetodoSentenciaDo():
+{}
+{
+	<DO><LBRACE> MetodoSentencias() <RBRACE><WHILE><LPAREN> MetodoComparaciones() <RPAREN><SEMICOLON>
+}
+
+void MetodoSentenciaWhile():
+{}
+{
+	<WHILE><LPAREN> MetodoComparaciones() <RPAREN><LBRACE> MetodoSentencias() <RBRACE>
+}
+
+void MetodoSentenciaAsignacion():
+{
+	Token tok1;
+	Token tok2;
+	Token tok3;
+	int aux;
+	String resultado;
+	boolean imp = false;
+}
+{
+	tok1 = <IDENTIFIER>
 	(
-			(
-					<INT> 
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>(mValores()(mAritmeticas())?|mLeer())
-			)
-		|	(
-					<DOUBLE>
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>(mValores()(mAritmeticas())?|mLeer())
-			)
-		|	(
-					<STRING>
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>(<PALABRAS>|mLeer())
-			)
-		|	(
-					<BOOL>
-						{ tipoDato = token.kind; }
-				t = <ID>
-						{ TablaDeSimbolos.InsertarSimbolo(t, tipoDato); }
-					<IGUAL>mVerdaderoFalso()
-			)
-	)<PUNTOCOMA>
+		<ASSIGN> (MetodoTiposAsignacion())
+		{
+			tok2 = token;
+			resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
+
+			if(resultado != " ") {
+				System.out.println(resultado);
+				imp = true;
+			}
+		}
+		(
+			LOOKAHEAD(2) MetodoOperacionAritmetica()MetodoTiposAsignacion()
+			{
+				tok3 = token;
+				resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok3);
+
+				if(resultado != " " && !imp) {
+					System.out.println(resultado);
+				}
+			}
+		)*
+		|
+		(<INCR> | <DECR>)
+		{
+			resultado = TablaDeSimbolos.RevisaVariable(tok1);
+
+			if(resultado != " ") {
+				System.out.println(resultado);
+			}
+		}
+	)
+}
+
+void MetodoTiposAsignacion():
+{}
+{
+	  <IDENTIFIER> 
+	| <NUMBER> 
+	| <DECIMAL> 
+	| <STRING> 
+	| <CHAR>	
+	| <TRUE>
+	| <FALSE>
+}
+
+void MetodoSentenciaWrite():
+{}
+{
+	<PRINT><LPAREN> (MetodoExpresion() (<PLUS><STRING>)* | <STRING>(<PLUS> MetodoExpresion())*)* <RPAREN><SEMICOLON>
+}
+
+void MetodoSentenciaRead():
+{}
+{
+	<READ><LPAREN><RPAREN>
+}
+
+void MetodoSentenciaSwitch():
+{}
+{
+	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER> | <STRING> | <CHAR> | <NUMBER> | <DECIMAL>)<COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+ [<DEFAULTT><COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>] <RBRACE>
 }
