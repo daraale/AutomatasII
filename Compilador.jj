@@ -31,7 +31,7 @@ PARSER_BEGIN(Compilador)
 			}
 			try
 			{
-				parser.mInicioPrograma();				
+				parser.MetodoInicioPrograma();				
 				System.out.println("Analisis finalizó sin errores");
 				
 			}
@@ -46,75 +46,78 @@ PARSER_END(Compilador)
 
 TOKEN : 
 { 
-	  <ASIGNACION: "=">  
-	| <PLUS: "+" >  
-	| <MINUS:"-"> 
-	| <MULTIPLY:"*"> 
-	| <DIVIDE:"/"> 
-	| <INCR: "++" > 
-	| <DECR: "--" > //7	
+	  <ASSIGN: 	"=" >  
+	| <PLUS: 	"+" >  
+	| <MINUS: 	"-" > 
+	| <MULTIPLY: "*"> 
+	| <DIVIDE: 	"/" > 
+	| <INCR: 	"++"> 
+	| <DECR: 	"--"> //7	
 }
 
 TOKEN:
 {
-	  <PUBLIC: "public"> 
-	| <PRIVATE: "private"> 
-	| <STATIC: "static"> 
-	| <VOID: "void"> 
-	| <MAIN: "public static void Main()"> 
-	| <PROGRAMA: "Programa" >  
-	| <IF: "if" > 
-	| <ELSE:"else" > 
-	| <ELSEIF:"else if" > 
-	| <FOR:"for" > 
-	| <SWITCH:"switch" > 
-	| <CASE:"case" > 
-	| <BREAK:"break" > 
-	| <DEFAUL:"ipredef" > 
-	| <DO:"do" > 
-	| <WHILE:"while" > 
-	| <WRITE:"write" > 
-	| <READ:"read" > //25
+	  <PUBLIC: 	"public" > 
+	| <PRIVATE: "private" > 
+	| <STATIC: 	"static" > 
+	| <VOID: 	"void" > 
+	| <MAIN: 	"public static void Main()" > 
+	| <PROGRAM: "Program" >  
+	| <IF: 		"if" > 
+	| <ELSE: 	"else" > 
+	| <ELSEIF: 	"else if" > 
+	| <FOR: 	"for" > 
+	| <SWITCH: 	"switch" > 
+	| <CASE: 	"case" > 
+	| <BREAK: 	"break" > 
+	| <DEFAULT: "default" > 
+	| <DO: 		"do" > 
+	| <WHILE: 	"while" > 
+	| <WRITE: 	"write" > 
+	| <READ: 	"read" > //25
 }
 
 TOKEN:
 {
-      <LPAREN: "(" > 
-	| <RPAREN: ")" > 
-	| <LBRACE: "{" > 
-	| <RBRACE: "}" > 
+      <LPAREN: 	"(" > 
+	| <RPAREN: 	")" > 
+	| <LBRACE: 	"{" > 
+	| <RBRACE: 	"}" > 
 	| <LBRACKET: "[" > 
 	| <RBRACKET: "]" > 
 	| <SEMICOLON: ";" > 
-	| <COMMA: "," > 
-	| <DOT: "." > 
-	| <DOUBLECOMMA: "\""> //35
+	| <COMMA: 	"," > 
+	| <DOT: 	"." > 
+	| <DOUBLEQUOTE: "\"" > //35
 }
 
 TOKEN:
 {
-	  <EQ: "==" > 
-	| <LE: "<=" > 
-	| <MN: "<" > 
-	| <GE: ">=" > 
-	| <GR: ">" > 
-	| <NE: "!=" > 
-	| <OR: "||" > 
-	| <AND: "&&"> /43
+	  <EQUAL: 	"==" > 
+	| <LESSEQUAL: "<=" > 
+	| <LESS: 	"<" > 
+	| <GREATEREQUAL: ">=" > 
+	| <GREATER: ">" > 
+	| <NOTEQUAL: "!=" > 
+	| <OR: 		"||" > 
+	| <AND: 	"&&" > //43
 }
 
 TOKEN:
 {
-	  <INT:"int"> //44
-	| <DEC: "double"> //45
-	| <CHR: "char"> //46
-	| <STR: "string"> //47
-	| <NUMBER : (["0"-"9"])+>  //48
-	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //49
-	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //50
-	| <CADENA : <DOUBLECOMMA>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLECOMMA>> //51
-	| <CARAC : "'"["a"-"z","A"-"Z","0"-"9"]"'" >//52 
-	| <DOUBLEPOINT : ":">
+	  <INT:		"int" > //44
+	| <DOUBLE: 	"double" > //45
+	| <CHR: 	"char" > //46
+	| <STR: 	"string" > //47
+	| <NUMBER:	(["0"-"9"])+ >  //48
+	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])* >  //49
+	| <DECIMAL: (["0"-"9"])+["."](["0"-"9"])+ > //50
+	| <STRING: 	<DOUBLEQUOTE>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLEQUOTE> > //51
+	| <CHAR: 	"'"["a"-"z","A"-"Z","0"-"9"]"'" >//52 
+	| <COLON: 	":" >
+	| <BOOL: 	"bool" >//54
+	| <TRUE: 	"true" >//55
+	| <FALSE: 	"false" >//56
 }
 
 SKIP : 
@@ -125,7 +128,7 @@ SKIP :
 void MetodoInicioPrograma():
 {}
 {
-	<PROGRAMA><IDENTIFIER><LBRACE>MetodoBloque()<RBRACE><EOF>
+	<PROGRAM><IDENTIFIER><LBRACE> MetodoBloque() <RBRACE><EOF>
 }
 
 void MetodoBloque():
@@ -137,7 +140,7 @@ void MetodoBloque():
 void MetodoVariablesGlobales():
 {}
 {
-	(<PRIVATE>|<PUBLIC>)(<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> MetodoBloque()
+	(<PRIVATE>|<PUBLIC>)(<INT>|<DOUBLE>|<STR>|<CHR>|<BOOL>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> MetodoBloque()
 }
 
 void Principal():
@@ -145,8 +148,7 @@ void Principal():
 	TablaDeSimbolos.InicializaListaCompatibilidad();	
 }
 {
-	<MAIN>
-	<LBRACE>MetodoSentencias()<RBRACE> 	
+	<MAIN><LBRACE> MetodoSentencias() <RBRACE> 	
 }
 
 void MetodoVariablesLocales():
@@ -186,7 +188,7 @@ void MetodoVariablesAsignacion(Token tok1):
 	boolean imp = false;
 }
 {
-	<ASIGNACION>
+	<ASSIGN>
 	(MetodoTiposAsignacion())
 	{
 		tok2 = token;
@@ -225,7 +227,7 @@ void MetodoSentencias():
 		| MetodoSentenciaFor()
 		| MetodoSentenciaDo()
 		| MetodoSentenciaWhile()
-		| LOOKAHEAD(2)MetodoSentenciaAsignacion(<SEMICOLON>{ TablaDeSimbolos.segunda = 0;})
+		| LOOKAHEAD(2)MetodoSentenciaAsignacion(<SEMICOLON>{ TablaDeSimbolos.validaChar = 0;})
 		| MetodoSentenciaWrite()
 		| MetodoSentenciaRead()<SEMICOLON>
 		| MetodoSentenciaSwitch()
@@ -271,12 +273,12 @@ void MetodoExpresion():
 void MetodoOperadores():
 {}
 {
-	    <EQ> 
-	  | <LE> 
-	  | <GE> 
-	  | <NE> 
-	  | <GR> 
-	  | <MN> 
+	    <EQUAL> 
+	  | <LESSEQUAL> 
+	  | <GREATEREQUAL> 
+	  | <NOTEEQUAL> 
+	  | <GREATER> 
+	  | <LESS> 
 }
 
 int MetodoOperacionAritmetica():
@@ -295,9 +297,10 @@ void MetodoTiposDatos():
 {}
 {
 	  <INT>
-	| <DEC>
+	| <DOUBLE>
 	| <STR>
 	| <CHR>
+	| <BOOL>
 }
 
 void MetodoSentenciaFor():
@@ -346,7 +349,7 @@ void MetodoSentenciaAsignacion():
 {
 	tok1 = <IDENTIFIER>
 	(
-		<ASIGNACION> (MetodoTiposAsignacion())
+		<ASSIGN> (MetodoTiposAsignacion())
 		{
 			tok2 = token;
 			resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
@@ -385,14 +388,16 @@ void MetodoTiposAsignacion():
 	  <IDENTIFIER> 
 	| <NUMBER> 
 	| <DECIMAL> 
-	| <CADENA> 
-	| <CARAC>	
+	| <STRING> 
+	| <CHAR>	
+	| <TRUE>
+	| <FALSE>
 }
 
 void MetodoSentenciaWrite():
 {}
 {
-	<WRITE><LPAREN> (MetodoExpresion() (<PLUS><CADENA>)* | <CADENA>(<PLUS> MetodoExpresion())*)* <RPAREN><SEMICOLON>
+	<WRITE><LPAREN> (MetodoExpresion() (<PLUS><STRING>)* | <STRING>(<PLUS> MetodoExpresion())*)* <RPAREN><SEMICOLON>
 }
 
 void MetodoSentenciaRead():
@@ -404,5 +409,5 @@ void MetodoSentenciaRead():
 void MetodoSentenciaSwitch():
 {}
 {
-	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER> | <CADENA> | <CARAC> | <NUMBER> | <DECIMAL>)<DOUBLEPOINT> (MetodoSentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+ [<DEFAUL><DOUBLEPOINT> (MetodoSentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>] <RBRACE>
+	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER> | <STRING> | <CHAR> | <NUMBER> | <DECIMAL>)<COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+ [<DEFAULT><COLON> (MetodoSentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>] <RBRACE>
 }
