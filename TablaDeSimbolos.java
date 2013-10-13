@@ -11,7 +11,13 @@ public class TablaDeSimbolos extends Object {
 	private static ArrayList<Integer> _booleanos = new ArrayList();
 	
 	public static void InsertarSimbolo(Token identificador, int tipo) {
-		_tablaTokens.put(identificador.image, tipo);
+		try {
+			int tipoIdentificador = (Integer)_tablaTokens.get(identificador.image);			
+			System.out.println("Error: El identificador " + identificador.image + " ya ha sido declarado \t\tLinea: " + identificador.beginLine);
+		}
+		catch(Exception e) {
+			_tablaTokens.put(identificador.image, tipo);
+		}
 	}
 	
 	public static void InicializaListaCompatibilidad() {
@@ -34,45 +40,45 @@ public class TablaDeSimbolos extends Object {
 		_booleanos.add(50);
 	}
 	
-	public static String RevisaAsignacion(Token tokenIzq, Token tokenAsig) {
+	public static String RevisaAsignacion(Token token1, Token token2) {
 		int tipoIdentificador1;
 		int tipoIdentificador2;
 		
-		if(tokenIzq.kind != 51 && tokenIzq.kind != 53) {
+		if(token1.kind != 49 && token1.kind != 50 && token1.kind != 51 && token1.kind != 53 && token1.kind != 54 && token1.kind != 55) {
 			try {
-				tipoIdentificador1 = (Integer)_tablaTokens.get(tokenIzq.image);
+				tipoIdentificador1 = (Integer)_tablaTokens.get(token1.image);
 			}
 			catch(Exception e) {
-				return "Error: El identificador " + tokenIzq.image + " no ha sido declarado\r\nLinea: " + tokenIzq.beginLine;
+				return "Error: El identificador " + token1.image + " no ha sido declarado \t\tLinea: " + token1.beginLine;
 			}
 		}
 		else {
 			tipoIdentificador1 = 0;
 		}
 		
-		if(tokenAsig.kind == 52) {
+		if(token2.kind == 52) {
 			try {
-				tipoIdentificador2 = (Integer)_tablaTokens.get(tokenAsig.image);
+				tipoIdentificador2 = (Integer)_tablaTokens.get(token2.image);
 			}
 			catch(Exception e) {
-				return "Error: El identificador " + tokenAsig.image + " no ha sido declarado\r\nLinea: " + tokenAsig.beginLine;
+				return "Error: El identificador " + token2.image + " no ha sido declarado \t\tLinea: " + token2.beginLine;
 			}
 		}
-		else if(tokenAsig.kind == 49 || tokenAsig.kind == 50 || tokenAsig.kind == 51 || tokenAsig.kind == 53 || tokenAsig.kind == 54 || tokenAsig.kind == 55) {
-			tipoIdentificador2 = tokenAsig.kind;
+		else if(token2.kind == 49 || token2.kind == 50 || token2.kind == 51 || token2.kind == 53 || token2.kind == 54 || token2.kind == 55) {
+			tipoIdentificador2 = token2.kind;
 		}
 		else {
 			tipoIdentificador2 = 0;
 		}
 
 		String mensaje = "";
-		switch(tipoIdentificador1) {
+		switch( tipoIdentificador1 ) {
 			case 44:			
 				if( _enteros.contains(tipoIdentificador2) ) {
 					mensaje = " ";
 				}
 				else {
-					mensaje = "Error: No se puede convertir " + tokenAsig.image + " a Entero \r\nLinea: " + tokenIzq.beginLine;
+					mensaje = "Error: No se puede convertir " + token2.image + " a Entero \t\tLinea: " + token1.beginLine;
 				}
 				break;
 			case 45:
@@ -80,7 +86,7 @@ public class TablaDeSimbolos extends Object {
 					mensaje = " ";
 				}
 				else {
-					mensaje = "Error: No se puede convertir " + tokenAsig.image + " a Doble \r\nLinea: " + tokenIzq.beginLine;
+					mensaje = "Error: No se puede convertir " + token2.image + " a Doble \t\tLinea: " + token1.beginLine;
 				}
 			case 46:
 				validaChar++;
@@ -89,11 +95,11 @@ public class TablaDeSimbolos extends Object {
 						mensaje = " ";
 					}
 					else {
-						mensaje = "Error: No se puede convertir " + tokenAsig.image + " a Caracter \r\nLinea: " + tokenIzq.beginLine;
+						mensaje = "Error: No se puede convertir " + token2.image + " a Caracter \t\tLinea: " + token1.beginLine;
 					}
 				}
 				else {
-					mensaje = "Error: No se puede asignar mas de un valor a un caracter \r\nLinea: " + tokenIzq.beginLine;
+					mensaje = "Error: No se puede asignar mas de un valor a un caracter \t\tLinea: " + token1.beginLine;
 				}
 				break;
 			case 47:
@@ -101,7 +107,7 @@ public class TablaDeSimbolos extends Object {
 					mensaje = " ";
 				}
 				else {
-					mensaje = "Error: No se puede convertir " + tokenAsig.image + " a Cadena \r\nLinea: " + tokenIzq.beginLine;
+					mensaje = "Error: No se puede convertir " + token2.image + " a Cadena \t\tLinea: " + token1.beginLine;
 				}
 				break;
 			case 48:
@@ -109,11 +115,11 @@ public class TablaDeSimbolos extends Object {
 					mensaje = " ";
 				}
 				else {
-					mensaje = "Error: No se puede convertir " + tokenAsig.image + " a Booleano \r\nLinea: " + tokenIzq.beginLine;
+					mensaje = "Error: No se puede convertir " + token2.image + " a Booleano \t\tLinea: " + token1.beginLine;
 				}
 				break;
 			default:
-				mensaje = "El identificador " + tokenIzq.image + " no ha sido declarado \r\nLinea: " + tokenIzq.beginLine;
+				mensaje = "El identificador " + token1.image + " no ha sido declarado \t\tLinea: " + token1.beginLine;
 				break;
 		}
 		
@@ -126,7 +132,7 @@ public class TablaDeSimbolos extends Object {
 			return " ";
 		}
 		catch(Exception ex) {
-			return "Error: El identificador " + token.image + " no ha sido declarado \r\nLinea: " + token.beginLine;
+			return "Error: El identificador " + token.image + " no ha sido declarado \t\tLinea: " + token.beginLine;
 		}
 	}
 }
