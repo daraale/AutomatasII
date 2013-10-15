@@ -4,12 +4,13 @@ Program ejemplo
 	{
 		int num = 0;	
 		int var = 0;
-		string var = " ";
+		string var2 = " ";
 		print("hola");
 		read();
+		int num2=4+5;
 		print("Ingrese un numero");
 		read();
-		if(num<=18)
+		if(num<=18 && 5 < 6 || "cadena" == "cadena")
 		{
 			print("lo sentimos no pasa la prueba");
 		}

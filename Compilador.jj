@@ -184,8 +184,7 @@ void MetodoVariablesAsignacion(Token tok1):
 	boolean imp = false;
 }
 {
-	<ASSIGN>
-	(MetodoTiposAsignacion())
+	<ASSIGN> (MetodoTiposAsignacion())
 	{
 		tok2 = token;
 		resultado = TablaDeSimbolos.RevisaAsignacion(tok1, tok2);
@@ -257,7 +256,7 @@ void MetodoComparaciones():
 void MetodoValor():
 {}
 {
-	LOOKAHEAD(2)(<IDENTIFIER> | <NUMBER>) | MetodoExpresion()
+	LOOKAHEAD(2)(<IDENTIFIER> | <NUMBER> | <STRING>) | MetodoExpresion()
 }
 
 void MetodoExpresion():
@@ -355,7 +354,7 @@ void MetodoSentenciaAsignacion():
 				System.out.println(resultado);
 				imp = true;
 			}
-		}
+		}		
 		(
 			LOOKAHEAD(2) MetodoOperacionAritmetica()MetodoTiposAsignacion()
 			{
@@ -366,7 +365,7 @@ void MetodoSentenciaAsignacion():
 					System.out.println(resultado);
 				}
 			}
-		)*
+		)*		
 		|
 		(<INCR> | <DECR>)
 		{
